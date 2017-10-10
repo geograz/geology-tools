@@ -81,15 +81,3 @@ exitbutton = ttk.Button(root, text='Close', command = lambda: exit())
 exitbutton.grid(columnspan = 2)
 
 root.mainloop()
-
-
-
-
-
-
-
-
-
-
-
-
