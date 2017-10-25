@@ -15,11 +15,6 @@ for i in range (n_js):
     setnr.append(i)
     n_planes.append(random.randint(30,100))
 
-print(dip)
-print(dipdir)
-print(setnr)
-
-
 #creates planes
 dips = []
 dipdirs = []
@@ -38,8 +33,6 @@ for i in range(len(dips)):
             dipdirs[i] = dipdirs[i]-180
         else:
             dipdirs[i] = dipdirs[i]+180
-
-print(cluster_nr)
 
 def pole_calculator(a,b):
     ### calculate upward directed normals
@@ -69,6 +62,7 @@ def pole_calculator(a,b):
     coordinates.append(pole_y)
     return coordinates
 
+# simple stereographic pole projection of generated sets of discontinuities
 plane_poles = pole_calculator(dips, dipdirs)
 
 
