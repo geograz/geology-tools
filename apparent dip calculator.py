@@ -1,4 +1,5 @@
-#apparent dip calculator
+# tool for calculation of the apparent dip
+# background info: https://en.wikipedia.org/wiki/Strike_and_dip
 import tkinter as tk
 from tkinter import ttk
 from math import degrees, atan, sin, radians, tan
@@ -31,24 +32,28 @@ Cs_entry.grid(row=3, column=1, sticky='W')
 root.cv = tk.Canvas(root, width = 200, height = 200)
 root.cv.grid(row=7, column=2)
 
-def calc_appdip():
+def graphics(appdip): #creates graphical representation of apparent dip angle
+    root.cv.create_arc(10, 10, 190, 190, start=90, extent=-appdip, dash=(7,4), fill='white')
+    root.cv.create_arc(10, 10, 190, 190, start=90, extent= 360 - appdip, dash=(7,4), fill='#f0f0f0')
+    root.cv.create_oval(10, 10, 190, 190)
+    root.cv.create_line(100, 0, 100, 30, width=3)
+
+def calc_appdip(graphics):
     def redirector(inputStr):  # permits printing on GUI
         textbox.insert(tk.INSERT, inputStr)  # permits printing on GUI
     tk.sys.stdout.write = redirector  # permits printing on GUI
     
-    # input validation
-    try:
+    try: # input validation
         x = float(DipDir_entry.get())
         y = float(Dip_entry.get())
         z = float(Cs_entry.get())
     except ValueError:
-        print ('invalid input')        
+        print ('invalid input')       
     if x > 360 or z > 360 or y > 90:
         print('invalid input')
-    #calculation of apparent dip
-    else:      
+    
+    else: # calculate apparent dip
         strike = x + 90
-        # calculate apparent dip
         appdip = degrees(atan(sin(radians(z - strike)) * tan(radians(y))))
         if appdip > 0:
             appdip = 90 - appdip
@@ -56,13 +61,10 @@ def calc_appdip():
             appdip = 90 + appdip*-1
     
         print('apparent dip: ', round(appdip, 1), '°')
-        #graphical representation of angle
-        root.cv.create_arc(10, 10, 190, 190, start=90, extent=-appdip, dash=(7,4), fill='white')
-        root.cv.create_arc(10, 10, 190, 190, start=90, extent= 360 - appdip, dash=(7,4), fill='#f0f0f0')
-        root.cv.create_oval(10, 10, 190, 190)
-        root.cv.create_line(100, 0, 100, 30, width=3)
 
-Go_button = ttk.Button(root, text='GO', command=calc_appdip)
+        graphics(appdip)
+
+Go_button = ttk.Button(root, text='GO', command= lambda: calc_appdip(graphics))
 Go_button.grid(row=5, columnspan=2)
 
 expl_label = ttk.Label(root, text='resulting apparent dip is given as ° from vertical - clockwise')
