@@ -5,8 +5,6 @@ from tkinter import ttk
 from math import degrees, atan, sin, radians, tan
 
 HEADER_FONT = ('Arial', 12, 'bold')
-NORMAL_FONT = ('Arial', 10)
-
 
 root = tk.Tk()
 root.title('Apparent Dip Calculator')
