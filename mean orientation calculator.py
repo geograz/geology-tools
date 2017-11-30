@@ -45,8 +45,13 @@ def backcalculation(mean_unit_vector): # backcalculation to dipdirection and dip
     return mean_DipDir, mean_Dip
         
 def print_result(backcalculation):
-    print('mean orientation: (', round((backcalculation[0]-360),1),'/',round((backcalculation[1]),1),')')
-    print('mean orientation pole: (', round((backcalculation[0]-180),1),'/',round((90-backcalculation[1]),1),')')
+    backcalculation = list(backcalculation)
+    if backcalculation[0] > 360:
+        backcalculation[0] = backcalculation[0]-360
+    print('mean orientation: (', round((backcalculation[0]),1),'/',round((backcalculation[1]),1),')')
+    if backcalculation[0] > 180:
+        backcalculation[0] = backcalculation[0]-360
+    print('mean orientation pole: (', round((backcalculation[0]+180),1),'/',round((90-backcalculation[1]),1),')')
 
 
 ### execution ####
