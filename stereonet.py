@@ -29,19 +29,7 @@ class stereonet:
         self.only_reference_circle = only_reference_circle
         self.grid_steps = grid_steps
     
-    # calc_great_circle(...) and calc_small_circle(...) are used for drawing 
-    # the stereonet's grid, not for plotting individual great circles   
-    
-    def calc_great_circle(self, dip, dipdir): 
-        
-        if dip == 90:
-            return [0,0,0]
-        else:
-            R = 1/(np.cos(np.radians(dip))) #radius
-            center_x = np.tan(np.radians(dip))*np.sin(np.radians(dipdir))
-            center_y = np.tan(np.radians(dip))*np.cos(np.radians(dipdir))
-            return -center_x, -center_y, -R
-    
+    # calc_small_circle() is (so far) used for drawing the stereonet's grid only 
     def calc_small_circle(self, kd):
         
         R = np.tan(np.radians(kd)) #radius
@@ -78,20 +66,18 @@ class stereonet:
             ax.fill_between(x, yI, yO, color="white", zorder = 2)
             ax.fill_between(x, -yO, -yI, color="white", zorder = 2)
         
-        #horizontal grid line
-        ax.plot((-100,100), (0,0), color = 'grey', linewidth = 0.1, zorder = 1)
+        # horizontal grid line
+        ax.plot((-100,100), (0,0), color = 'grey', linewidth = 0.2, zorder = 1)
         #vertical grid line
-        ax.plot((0,0), (-100,100), color = 'grey', linewidth = 0.1, zorder = 1) 
+        ax.plot((0,0), (-100,100), color = 'grey', linewidth = 0.2, zorder = 1) 
         
-        #draw great circles
-        for dip in np.arange(10, 90, step = self.grid_steps): 
-            for dipdir in [270, 90]:
-                GC_params = self.calc_great_circle(dip, dipdir)
-                GC = plt.Circle((GC_params[0], GC_params[1]), GC_params[2], 
-                                color = 'grey', fill = None, linewidth = 0.2)
-                ax.add_artist(GC)
-        
-        #draw small circles                
+        # draw great circles
+        for dipdir in [270,90]:
+            background_dips = np.arange(0,90,step = self.grid_steps)
+            self.plot_great_circles(background_dips, np.full(background_dips.shape, dipdir), 
+                                    add_to_snet = True, colors = ['grey'], linewidth = 0.2, linestyle = '-')
+
+        # draw small circles                
         for dip in np.arange(10, 90, step = self.grid_steps): 
             SC_params = self.calc_small_circle(dip)
             SC_pos = plt.Circle((SC_params[0], SC_params[1]), SC_params[2], 
@@ -108,7 +94,7 @@ class stereonet:
         
     def calc_normal_vectors(self, dips, dipdirs):
         
-        ### calculate upward directed normals
+        # calculate upward directed normals
         n_X = np.sin(np.radians(dips)) * np.sin(np.radians(dipdirs))
         n_Y = np.sin(np.radians(dips)) * np.cos(np.radians(dipdirs))
         n_Z = np.cos(np.radians(dips))
@@ -138,18 +124,29 @@ class stereonet:
                    s = size, zorder = 4)
         
     def plot_great_circles(self, dips, dipdirs, 
-                           add_to_snet = False, draw_poles = True, 
-                           colors = [], linewidth = 1, linestyle = '-'):
+                           add_to_snet = False, colors = [], linewidth = 1, 
+                           linestyle = '-'):
         
         if add_to_snet == False:
             self.draw_stereonet()
+        else:    
+            ax = plt.gca()
         
-        ax = plt.gca()
-        
+        # calculates parameters to plot circles (i.e. center coordinates and
+        # radius)
+        def calc_great_circle_params(dip, dipdir): 
+            if dip == 90:
+                return [0,0,0]
+            else:
+                R = 1/(np.cos(np.radians(dip))) #radius
+                center_x = np.tan(np.radians(dip))*np.sin(np.radians(dipdir))
+                center_y = np.tan(np.radians(dip))*np.cos(np.radians(dipdir))
+                return -center_x, -center_y, -R
+            
         # function calculates the coordinates of the straight line that 
         # represents a vertical plane. ...otherwise an infinite large 
         # circle would be required.
-        def calc_coords_of_vertical_plane(dipdir):
+        def calc_vertical_plane_params(dipdir):
             if dipdir < 90:
                 x_coord = np.cos(np.radians(dipdir))
                 y_coord = -np.sin(np.radians(dipdir))
@@ -168,7 +165,7 @@ class stereonet:
         colors = (len(dips))*colors
         
         for i in range(len(dips)):
-            GC = self.calc_great_circle(dips[i], dipdirs[i])
+            GC = calc_great_circle_params(dips[i], dipdirs[i])
             if GC[2] == 0:
                 if dipdirs[i] == 270 or dipdirs[i] == 90:
                     #vertical line:
@@ -181,7 +178,7 @@ class stereonet:
                             linewidth = linewidth, linestyle = linestyle, 
                             zorder = 1) 
                 else:
-                    x_coord, y_coord = calc_coords_of_vertical_plane(dipdirs[i])
+                    x_coord, y_coord = calc_vertical_plane_params(dipdirs[i])
                     ax.plot((-x_coord, x_coord), (-y_coord, y_coord), 
                             color = colors[i], linewidth = linewidth, 
                             linestyle = linestyle, zorder = 1)
@@ -213,6 +210,7 @@ snet = stereonet(only_reference_circle = True, figsize = (6,6))
 snet.draw_stereonet()
 
 colors = ['blue', 'red', 'green', 'yellow', 'cyan', 'orange']
+
 
 for i in range(3):
     js = joint_set(dipdir = np.random.randint(0,361, size = 1),
