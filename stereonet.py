@@ -3,12 +3,12 @@ The primary use of this program is to plot great circles and poles of
 structural geological orientation data onto a lower hemisphere projection. 
 More sophisticated applications like whole sphere projections will eventually 
 be implemented in future versions.
-The better part of the math behind this comes from the book:
+The better part of the math behind this application comes from the book:
     
 Richard E. Goodman & Gen-hua Shi (1985) "Block Theory and Its Application to
 Rock Engineering"
 
-freely avalable under:
+freely available under:
     
 https://www.rocscience.com/assets/resources/learning/Block-Theory-and-Its-Application-to-Rock-Engineering.pdf
 '''
