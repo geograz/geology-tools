@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 '''
 The primary use of this program is to plot great circles and poles of
 structural geological orientation data onto a lower hemisphere projection.
@@ -46,7 +45,7 @@ class stereonet:
         ax.add_artist(ref_circle)
 
         # to hide the second hemisphere and add annotations
-        if self.only_reference_circle == True:
+        if self.only_reference_circle is True:
             ax.text(0, 1.05, '0° / 360°', horizontalalignment='center',
                     verticalalignment='center')
             ax.text(1.05, 0, '90°', verticalalignment='center',
@@ -111,7 +110,7 @@ class stereonet:
 
     def plot_poles(self, dips, dipdirs, add_to_snet=False, color='black'):
 
-        if add_to_snet == False:
+        if add_to_snet is False:
             self.draw_stereonet()
         ax = plt.gca()
 
@@ -131,7 +130,7 @@ class stereonet:
                            add_to_snet=False, colors=[], linewidth=1,
                            linestyle='-'):
 
-        if add_to_snet == False:
+        if add_to_snet is False:
             self.draw_stereonet()
         else:
             ax = plt.gca()
@@ -194,32 +193,34 @@ class stereonet:
 
 
 #### example plot #####
+if __name__ == '__main__':
 
-# generates a synthetical joint set
+    # generates a synthetical joint set
+    def joint_set(dipdir, dip, dip_std=20, dipdir_std=20, size=100):
+        dips = np.random.normal(dip, dip_std, size)
+        dips = np.where(dips > 90, 90 - (dips - 90), dips)
+        dips = np.where(dips < 0, dips*-1, dips)
+        dipdirs = np.random.normal(dipdir, dipdir_std, size)
+        dipdirs = np.where(dipdirs > 360, dipdirs - 360, dipdirs)
+        dipdirs = np.where(dipdirs < 0, 360 + dipdirs, dipdirs)
 
-def joint_set(dipdir, dip, dip_std=20, dipdir_std=20, size=100):
-    dips = np.random.normal(dip, dip_std, size)
-    dips = np.where(dips > 90, 90 - (dips - 90), dips)
-    dips = np.where(dips < 0, dips*-1, dips)
-    dipdirs = np.random.normal(dipdir, dipdir_std, size)
-    dipdirs = np.where(dipdirs > 360, dipdirs - 360, dipdirs)
-    dipdirs = np.where(dipdirs < 0, 360 + dipdirs, dipdirs)
+        return dips, dipdirs
 
-    return dips, dipdirs
+    snet = stereonet(only_reference_circle=True, figsize=(6, 6))
 
+    snet.draw_stereonet()
 
-snet = stereonet(only_reference_circle=True, figsize=(6, 6))
+    colors = ['blue', 'red', 'green', 'yellow', 'cyan', 'orange']
 
-snet.draw_stereonet()
-
-colors = ['blue', 'red', 'green', 'yellow', 'cyan', 'orange']
-
-
-for i in range(3):
-    js = joint_set(dipdir=np.random.randint(0, 361, size=1),
-                   dip=np.random.randint(0, 91, 1),
-                   dip_std=np.random.randint(0, 20, 1),
-                   dipdir_std=np.random.randint(0, 30, 1),
-                   size=np.random.randint(10, 50, 1))
-    snet.plot_poles(js[0], js[1], add_to_snet=True, color=colors[i])
-    snet.plot_great_circles(js[0], js[1], add_to_snet=True, colors=[colors[i]])
+    for i in range(3):
+        js = joint_set(dipdir=np.random.randint(0, 361, size=1),
+                       dip=np.random.randint(0, 91, 1),
+                       dip_std=np.random.randint(0, 20, 1),
+                       dipdir_std=np.random.randint(0, 30, 1),
+                       size=np.random.randint(10, 50, 1))
+        snet.plot_poles(js[0], js[1],
+                        add_to_snet=True,
+                        color=colors[i])
+        snet.plot_great_circles(js[0], js[1],
+                                add_to_snet=True,
+                                colors=[colors[i]])
