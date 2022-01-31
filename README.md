@@ -10,4 +10,8 @@ Structural geology:
 Uncertainty estimation:
 - distance_to_well.py
 
+Rockmass strength:
+- RM_main.py
+- RM_lib.py
+
 No guaranty is given on the flawless functionality of the codes and the repository is licensed under the "MIT license".
