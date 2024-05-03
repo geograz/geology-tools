@@ -17,7 +17,6 @@ licensed under the MIT License (see license file in repository).
 Parts of the code are based on: http://geologyandpython.com/hoek-brown.html
 """
 
-import numpy as np
 import pandas as pd
 
 from RM_lib import Hoek, Utilities, Deformation
@@ -84,26 +83,23 @@ for i in df_combinations.index:
 
     ERM_Verman = deform.RMDef_Verman1997(c['GSI'], c['tunnel depth [m]'])
 
-    ERM_AsefReddish2002 = deform.RMDef_AsefReddish2002(c['intact UCS [MPa]'],
-                                                       400,
-                                                       sigc,
-                                                       c['unit weight [MN/m³]'],
-                                                       c['tunnel depth [m]'],
-                                                       k0=0.33)
+    ERM_AsefReddish2002 = deform.RMDef_AsefReddish2002(
+        c['intact UCS [MPa]'], 400, sigc, c['unit weight [MN/m³]'],
+        c['tunnel depth [m]'], k0=0.33)
 
-    df_temp = pd.DataFrame({'mb': [mb], 's': [s], 'a': [a],
-                            'sig3max [MPa]': [sig3_max],
-                            'cohesion [MPa]': [coh],
-                            'friction angle [°]': [phi],
-                            'RM tensile strength [MPa]': [sigtm],
-                            'RM UCS [MPa]': [sigc],
-                            'RM global strength [MPa]': [sigcm],
-                            'RM DefMod Hoek&al2002 [MPa]': [ERM_Hoek_0],
-                            'RM DefMod Hoek&Diederichs2006 [MPa]': [ERM_Hoek_1],
-                            'RM DefMod Verman&al1997': [ERM_Verman],
-                            'RM DefMod Asef&Reddish2002 [MPa]': [ERM_AsefReddish2002]
-                            })
-    df_output = df_output.append(df_temp)
+    df_temp = pd.DataFrame(
+        {'mb': [mb], 's': [s], 'a': [a],
+         'sig3max [MPa]': [sig3_max],
+         'cohesion [MPa]': [coh],
+         'friction angle [°]': [phi],
+         'RM tensile strength [MPa]': [sigtm],
+         'RM UCS [MPa]': [sigc],
+         'RM global strength [MPa]': [sigcm],
+         'RM DefMod Hoek&al2002 [MPa]': [ERM_Hoek_0],
+         'RM DefMod Hoek&Diederichs2006 [MPa]': [ERM_Hoek_1],
+         'RM DefMod Verman&al1997': [ERM_Verman],
+         'RM DefMod Asef&Reddish2002 [MPa]': [ERM_AsefReddish2002]})
+    df_output = pd.concat([df_output, df_temp])
 
 df_output.index = df_combinations.index
 # save results to excel file

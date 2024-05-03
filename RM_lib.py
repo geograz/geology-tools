@@ -20,25 +20,22 @@ Parts of the code are based on: http://geologyandpython.com/hoek-brown.html
 from itertools import product
 import numpy as np
 import pandas as pd
-from typing import List
 
 
 class Utilities:
     '''class that contains general purpose functions'''
 
-    def __init__(self):
-        pass
-
     def get_combinations(self, dictionary: dict, name: str) -> pd.DataFrame:
         '''compute all possible combinations of lists that are
         values of a dictionary'''
-        combinations = list(product(*list([dictionary['intact UCS [MPa]'],
-                                           dictionary['GSI'],
-                                           dictionary['mi'],
-                                           dictionary['disturbance factor'],
-                                           dictionary['intact modulus - Ei [MPa]'],
-                                           dictionary['unit weight [MN/m³]'],
-                                           dictionary['tunnel depth [m]']])))
+        combinations = list(product(*list(
+            [dictionary['intact UCS [MPa]'],
+             dictionary['GSI'],
+             dictionary['mi'],
+             dictionary['disturbance factor'],
+             dictionary['intact modulus - Ei [MPa]'],
+             dictionary['unit weight [MN/m³]'],
+             dictionary['tunnel depth [m]']])))
         # save combinations
         df = pd.DataFrame(np.array(combinations), columns=dictionary.keys())
         df.to_excel(f'{name}_input.xlsx', index=True)
@@ -53,20 +50,23 @@ class Hoek:
     def __init__(self):
         pass
 
-    def HoekBrownCriterion(self, mi: int, GSI: int, D: float) -> List:
+    def HoekBrownCriterion(self, mi: int, GSI: int, D: float) -> list:
+        '''equations 3, 4, 5 of Hoek et al. (2002);
+        see e.g. Hoek and Brown (1997) Practical estimates of rock mass
+        strength for mi values'''
         mb = mi * np.exp((GSI-100)/(28-(14*D)))
         s = np.exp((GSI-100)/(9-(3*D)))
         a = (1/2)+(1/6)*(np.exp(-GSI/15)-np.exp(-20/3))
         return mb, s, a
 
     def FailureEnvelopeRange(self, sigci: float, mb: float, s: float, a: float,
-                             unit_weigth: float, depth: float) -> List:
+                             unit_weigth: float, depth: float) -> list:
         sigcm = sigci * (mb+4*s-a*(mb-8*s))*(((mb/4)+s)**(a-1))/(2*(1+a)*(2+a))
         sig3_max = sigcm * 0.47 * (sigcm / (unit_weigth * depth))**(-.94)
         return sigcm, sig3_max
 
     def MohrCoulombFit(self, sig3_max: float, sigci: float, a: float,
-                       mb: float, s: float) -> List:
+                       mb: float, s: float) -> list:
         sig3n = sig3_max / sigci
         phi = np.rad2deg(np.arcsin((6*a*mb*((s+mb*sig3n)**(a-1)))/(2*(1+a)*(2+a)+6*a*mb*((s+mb*sig3n)**(a-1)))))
 
@@ -75,7 +75,7 @@ class Hoek:
         coh = coh_term1 / coh_term2
         return phi, coh
 
-    def RMStrength(self, sigci: float, s: float, a: float, mb: float) -> List:
+    def RMStrength(self, sigci: float, s: float, a: float, mb: float) -> list:
         sigc = sigci*s**a
         sigtm = (s * sigci)/mb*-1
         return sigc, sigtm
@@ -144,3 +144,16 @@ class Deformation:
         term2 = (sig3 / sig_cm) + b
         Erm = (E_0/1000) * (term1 / term2)
         return Erm * 1000
+
+
+if __name__ == '__main__':
+    # example usage to determine mb, s, a
+
+    mi = 10
+    GSI = 70
+    D = 0
+
+    hoek = Hoek()
+    mb, s, a = hoek.HoekBrownCriterion(mi, GSI, D)
+
+    print(f'mb: {round(mb, 2)}, s: {round(s, 2)}, a: {round(a, 2)}')
